@@ -1,4 +1,5 @@
 import csv
+from io import StringIO
 
 
 # Converts table data returned by Form recognizer into CSV data
@@ -33,13 +34,6 @@ def makeParagraphsCSV(data):
     return paras
 
 
-# Writes the given CSV data into the given file
-def writeCSV(data, filename):
-    with open(filename, "w", newline="") as csvfile:
-        csvwriter = csv.writer(csvfile)
-        csvwriter.writerows(data)
-
-
 # Merges all the 2d CSV data tables in the provided list into a single 2d CSV data table
 def mergeCSV(datas):
     colmax = 0
@@ -66,8 +60,8 @@ def mergeCSV(datas):
     return data2d
 
 
-# Extracts all the table, key-value, and paragraph data from Form recognizer and writes it to a CSV file
-def processDataToCSV(data, csvFileName):
+# Extracts all the table, key-value, and paragraph data from Form recognizer and writes it to a CSV string
+def processDataToCSV(data):
     csvData = []
     csvData.append(makeKeyValueCSV(data["keyValuePairs"]))
 
@@ -76,4 +70,19 @@ def processDataToCSV(data, csvFileName):
 
     csvData.append(makeParagraphsCSV(data["paragraphs"]))
 
-    writeCSV(mergeCSV(csvData), csvFileName)
+    f = StringIO()
+    csv.writer(f).writerows(mergeCSV(csvData))
+    return f.getvalue()
+
+
+# Extracts all the table, key-value, and paragraph data from Form recognizer and returns it as a dictionary
+def processDataToObj(data):
+    processedData = {"tables": []}
+    processedData["keyValuePairs"] = makeKeyValueCSV(data["keyValuePairs"])
+
+    for table in data["tables"]:
+        processedData["tables"].append(makeTableCSV(table))
+
+    processedData["paragraphs"] = makeParagraphsCSV(data["paragraphs"])
+
+    return processedData

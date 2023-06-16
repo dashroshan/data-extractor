@@ -6,7 +6,7 @@ import string
 import random
 import argparse
 from dotenv import load_dotenv
-from process import processDataToCSV
+from process import processDataToCSV, processDataToObj
 
 # Loading environment variables
 load_dotenv()
@@ -90,9 +90,14 @@ def getAnalyzeResult(filename):
 
 
 # Covert the data from the provided form into CSV
-def formToCSV(formName, csvName):
+def formToData(formName):
     data = getAnalyzeResult(formName)  # Get the data from Azure form analyzer as JSON
-    processDataToCSV(data, csvName)  # Process the data and write it into a CSV
+    csvData = processDataToCSV(data)
+    objData = processDataToObj(data)
+    return {
+        "csv": csvData,
+        "obj": objData,
+    }
 
 
 # Run if the file is executed directly
@@ -103,7 +108,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.i and args.o:
-        formToCSV(args.i, args.o)
+        data = formToData(args.i)
+        with open(args.o, "w", newline="") as f:
+            f.write(data["csv"])
         print("Done!")
     else:
         print(
