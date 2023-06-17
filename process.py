@@ -1,3 +1,4 @@
+# Importing required libraries
 import csv
 from io import StringIO
 
@@ -8,9 +9,12 @@ def makeTableCSV(tablesData):
         ["" for x in range(tablesData["columnCount"])]
         for y in range(tablesData["rowCount"])
     ]
+    headerLast = 0
     for cell in tablesData["cells"]:
         data2d[cell["rowIndex"]][cell["columnIndex"]] = cell["content"]
-    return data2d
+        if cell.get("kind") == "columnHeader":
+            headerLast = cell["rowIndex"]
+    return data2d, headerLast
 
 
 # Converts the key value data returned by Form recognizer into CSV data
@@ -66,7 +70,8 @@ def processDataToCSV(data):
     csvData.append(makeKeyValueCSV(data["keyValuePairs"]))
 
     for table in data["tables"]:
-        csvData.append(makeTableCSV(table))
+        tableData, headerLast = makeTableCSV(table)
+        csvData.append(tableData)
 
     csvData.append(makeParagraphsCSV(data["paragraphs"]))
 
@@ -81,7 +86,8 @@ def processDataToObj(data):
     processedData["keyValuePairs"] = makeKeyValueCSV(data["keyValuePairs"])
 
     for table in data["tables"]:
-        processedData["tables"].append(makeTableCSV(table))
+        tableData, headerLast = makeTableCSV(table)
+        processedData["tables"].append([tableData, headerLast])
 
     processedData["paragraphs"] = makeParagraphsCSV(data["paragraphs"])
 

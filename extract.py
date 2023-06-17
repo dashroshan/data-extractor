@@ -94,10 +94,7 @@ def formToData(formName):
     data = getAnalyzeResult(formName)  # Get the data from Azure form analyzer as JSON
     csvData = processDataToCSV(data)
     objData = processDataToObj(data)
-    return {
-        "csv": csvData,
-        "obj": objData,
-    }
+    return {"csv": csvData, "obj": objData, "status": "succeeded"}
 
 
 # Run if the file is executed directly
