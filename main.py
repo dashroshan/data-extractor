@@ -7,7 +7,9 @@ from extract import formToData
 
 # Set react build folder for static and template
 app = Flask(
-    __name__, static_folder="frontend/build/static", template_folder="frontend/build"
+    __name__,
+    static_folder=os.path.abspath("frontend/build/static"),
+    template_folder=os.path.abspath("frontend/build"),
 )
 
 
@@ -23,7 +25,7 @@ def success():
     if request.method == "POST":
         f = request.files["file"]
         randomStr = "".join(random.choices(string.ascii_letters, k=5))
-        filePath = "upload/" + randomStr + f.filename
+        filePath = os.path.abspath("upload/" + randomStr + f.filename)
         f.save(filePath)
         formData = formToData(filePath)
         os.remove(filePath)
